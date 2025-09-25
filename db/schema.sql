@@ -1,0 +1,45 @@
+-- MySQL schema for VibeSphere
+
+CREATE DATABASE IF NOT EXISTS vibesphere CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE vibesphere;
+
+CREATE TABLE users (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(80) NOT NULL UNIQUE,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  display_name VARCHAR(150),
+  profile_pic_url VARCHAR(500),
+  banner_url VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE vibes (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  caption VARCHAR(1000),
+  media_url VARCHAR(1000),
+  media_type ENUM('image','video') DEFAULT 'image',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE comments (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  vibe_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  text VARCHAR(1000) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (vibe_id) REFERENCES vibes(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE mocha_likes (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  vibe_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_like (vibe_id, user_id),
+  FOREIGN KEY (vibe_id) REFERENCES vibes(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
